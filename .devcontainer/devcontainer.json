@@ -1,0 +1,11 @@
+{
+  "name": "PPC",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "python",
+  "workspaceFolder": "/usr/src/ppc",
+  "extensions": [
+    "donjayamanne.python-extension-pack"
+  ],
+  "forwardPorts": [
+  ]
+}

@@ -1,0 +1,9 @@
+FROM python:latest as dev
+
+COPY ../. /usr/src/ppc
+
+RUN chmod a+rwx -R /usr/src/ppc \
+  && apt-get update \
+  && apt-get -y install --no-install-recommends apt-utils ncdu git vim gitg ssh 2>&1 \
+  && apt-get autoremove -y \
+  && apt-get clean -y
