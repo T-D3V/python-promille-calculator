@@ -1,10 +1,11 @@
 import helper
 import datetime
 from dateutil.relativedelta import relativedelta
+from cmd import Cmd
 
 def main():
   promille_clac = PromilleClaculator()
-  promille_clac.CalculatePromille()
+  promille_clac.cmdloop()
 
 class Drink:
   #since there are no constants in python I decided to implement a helper that provides a sort of constant,
@@ -95,7 +96,7 @@ class Person:
     
   wholeBodyWaterIndex = property(__get_wholeBodyWaterIndex)
   
-  def Drink(self, drink: Drink) -> None:
+  def drink(self, drink: Drink) -> None:
     self.alcoholPromille += (self.PROPORTION_WATER_IN_BLOOD * drink.alcoholMassInGramms) / (self.DENSITY_BLOOD_GRAMM_PER_CCM * self.wholeBodyWaterIndex)
     
     
@@ -106,19 +107,62 @@ class Pun:
     
   def getPun(self) -> str:
     if(self.__alcoholPromille > 0.5):
-      return "Sie sind nichtmehr fahrtüchtig."
+      return "You're not allowed to drive anymore"
     else:
-      return "Sie können noch weiterfahren"
+      return "You're safe to drive"
 
-class PromilleClaculator:
-  def __init__(self) -> None:
-    pass
-  def __AskPersonData(self) -> None:
-    pass
-  def __AskDrinkData(self) -> None:
-    pass
-  def CalculatePromille(self) -> None:
-    pass
+class PromilleClaculator(Cmd):
+  prompt = 'pc> '
+  intro = "Welcome to the PromilleCalculator! Type ? to list commands"
+  person = None
+  
+  def do_exit(self, inp):
+    print("Bye")
+    return True
+  
+  def help_exit(self):
+    print("exit the application.")
+  
+  def do_add_person(self, inp: str):
+    '''Define the person in Format: add_person "body mass in kg"(75) "body size in cm"(175) "birthday"(22.10.2005 00:00:00) "Your sex 0 for male and 1 for women"(0/1)'''
+    try:       
+      self.__AskPersonData(inp)
+    except Exception as e:
+      print("The pervious command failed, please look over the command you typed, if it still doesn't work contact the maintainer.")
+      print("Define the person in Format: add_person \"body mass in kg\"(75) \"body size in cm\"(175) \"birthday\"(22.10.2005 00:00:00) \"Your sex 0 for male and 1 for women\"(0/1)")
+      print(str(e))
+  def do_add_drink(self, inp:str):
+    '''Add the drinks you've had in Format: add_drink "volume in milliliter"(500) "alcoholic strength"(1.0) "time of intake"(22.10.05 22:48:35)'''
+    if(isinstance(self.person, Person)):
+      try:       
+        self.__AskDrinkData(inp)
+      except Exception as e:
+        print("The pervious command failed, please look over the command you typed, if it still doesn't work contact the maintainer.")
+        print("Add the drinks you've had in Format: add_drink \"volume in milliliter\"(500) \"alcoholic strength\"(1.0) \"time of intake\"(22.10.05 22:48:35)")
+        print(str(e))
+    else:
+      print('Please first define a person with: add_person')
+  
+  def do_calculate_promille(self, inp):
+    '''calculate if you're safe to drive'''
+    if(isinstance(self.person, Person)):
+      print(self.person.alcoholPromille)
+      print(Pun(self.person.alcoholPromille).getPun())
+    else:
+      print('Please first define a person with: add_person')
+  
+  def default(self, inp):
+    if inp == 'x' or inp == 'q':
+      return self.do_exit(inp)
+    print("Default: {}".format(inp))
+    
+  do_EOF = do_exit
+  help_EOF = help_exit
+  
+  def __AskPersonData(self, inp:str) -> None:
+    self.person = Person(float(inp.split(" ")[0]), float(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%Y %H:%M:%S'), int(inp.split(" ")[4]))
+  def __AskDrinkData(self, inp:str) -> None:
+    self.person.drink(Drink(int(inp.split(" ")[0]), float(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%y %H:%M:%S')))
     
 
   
