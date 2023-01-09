@@ -1,4 +1,3 @@
-import helper
 import datetime
 from dateutil.relativedelta import relativedelta
 from cmd import Cmd
@@ -8,29 +7,18 @@ def main():
   promille_clac.cmdloop()
 
 class Drink:
-  #since there are no constants in python I decided to implement a helper that provides a sort of constant,
+  #there are no constants in python
   #comonly programmers in python just use UPPERCASE names and everybody knows it's a constant
   #also there is no double data type in python but float does the job equally good here
-  @helper.constant
-  def BEER_ALCOHOLIC_STRENGTH() -> float:
-    return 0.05
+  BEER_ALCOHOLIC_STRENGTH:float = 0.05
+  WINE_ALCOHOLIC_STRENGTH:float = 0.10
+  SCHNAPS_ALCOHOLIC_STRENGTH:float = 0.40
+  DENSITY_ALCOHOL:float = 0.8
   
-  @helper.constant
-  def WINE_ALCOHOLIC_STRENGTH() -> float:
-    return 0.10
-  
-  @helper.constant
-  def SCHNAPS_ALCOHOLIC_STRENGTH() -> float:
-    return 0.40
-  
-  @helper.constant
-  def DENSITY_ALCOHOL() -> float:
-    return 0.8
-  
-  def __init__(self, volumeInMilliliter: int, alcoholicStrength: float, drankAt: datetime.datetime) -> None:
-    self.__volumeInMilliliter = volumeInMilliliter
-    self.__alcoholicStrength = alcoholicStrength
-    self.__drankAt = drankAt
+  def __init__(self, volumeInMilliliter: int, alcoholicStrength: int, drankAt: datetime.datetime) -> None:
+    self.__volumeInMilliliter:int = volumeInMilliliter
+    self.__alcoholicStrength:float = [Drink.BEER_ALCOHOLIC_STRENGTH, Drink.WINE_ALCOHOLIC_STRENGTH, Drink.SCHNAPS_ALCOHOLIC_STRENGTH][alcoholicStrength]
+    self.__drankAt:datetime.datetime = drankAt
     
   def __get_hoursSinceIntake(self) -> float:
     return (datetime.datetime.now() - self.__drankAt).total_seconds() // 3600
@@ -44,36 +32,19 @@ class Drink:
     
 
 class Person:
-  @helper.constant
-  def MAN() -> int:
-    return 0
-  
-  @helper.constant
-  def WOMAN() -> int:
-    return 1
-
-  @helper.constant
-  def DECONSTRUCTION_WAITTIME_HOURS() -> float:
-    return 1.0
-  
-  @helper.constant
-  def DECONTSTRUCTION_PER_HOUR() -> float:
-    return 0.1
-  
-  @helper.constant
-  def PROPORTION_WATER_IN_BLOOD() -> float:
-    return 0.8
-  
-  @helper.constant
-  def DENSITY_BLOOD_GRAMM_PER_CCM() -> float:
-    return 1.055
+  MAN:int = 0
+  WOMAN:int = 1
+  DECONSTRUCTION_WAITTIME_HOURS:float = 1.0
+  DECONTSTRUCTION_PER_HOUR:float = 0.1
+  PROPORTION_WATER_IN_BLOOD:float = 0.8
+  DENSITY_BLOOD_GRAMM_PER_CCM:float = 1.055
   
   def __init__(self, bodyMass: float, bodySizeInCM: float, birthday: datetime.datetime, sex: int) -> None:
-    self.__bodyMass = bodyMass
-    self.__bodySizeInCM = bodySizeInCM
-    self.__birthday = birthday
-    self.__sex = sex
-    self.__set_alcoholPromille(0.0)
+    self.__bodyMass:float = bodyMass
+    self.__bodySizeInCM:float = bodySizeInCM
+    self.__birthday:datetime.datetime = birthday
+    self.__sex:int = sex
+    self.__alcoholPromille:float = 0.0
   
   def __get_ageInYears(self) -> float:
     return relativedelta(datetime.datetime.now(), self.__birthday).years
@@ -82,11 +53,8 @@ class Person:
   
   def __get_alcoholPromille(self) -> float:
     return self.__alcoholPromille
-
-  def __set_alcoholPromille(self, var: float) -> None:
-    self.__alcoholPromille = var
   
-  alcoholPromille = property(__get_alcoholPromille, __set_alcoholPromille)
+  alcoholPromille = property(__get_alcoholPromille)
   
   def __get_wholeBodyWaterIndex(self) -> float:
     if self.__sex == self.WOMAN:
@@ -97,7 +65,7 @@ class Person:
   wholeBodyWaterIndex = property(__get_wholeBodyWaterIndex)
   
   def drink(self, drink: Drink) -> None:
-    self.alcoholPromille += (self.PROPORTION_WATER_IN_BLOOD * drink.alcoholMassInGramms) / (self.DENSITY_BLOOD_GRAMM_PER_CCM * self.wholeBodyWaterIndex)
+    self.__alcoholPromille += ((self.PROPORTION_WATER_IN_BLOOD * drink.alcoholMassInGramms) / (self.DENSITY_BLOOD_GRAMM_PER_CCM * self.wholeBodyWaterIndex)) - (self.DECONTSTRUCTION_PER_HOUR * (drink.hoursSinceIntake - self.DECONSTRUCTION_WAITTIME_HOURS))
     
     
 
@@ -114,7 +82,7 @@ class Pun:
 class PromilleClaculator(Cmd):
   prompt = 'pc> '
   intro = "Welcome to the PromilleCalculator! Type ? to list commands"
-  person = None
+  person:None|Person = None
   
   def do_exit(self, inp):
     print("Bye")
@@ -132,7 +100,7 @@ class PromilleClaculator(Cmd):
       print("Define the person in Format: add_person \"body mass in kg\"(75) \"body size in cm\"(175) \"birthday\"(22.10.2005 00:00:00) \"Your sex 0 for male and 1 for women\"(0/1)")
       print(str(e))
   def do_add_drink(self, inp:str):
-    '''Add the drinks you've had in Format: add_drink "volume in milliliter"(500) "alcoholic strength"(1.0) "time of intake"(22.10.05 22:48:35)'''
+    '''Add the drinks you've had in Format: add_drink "volume in milliliter"(500) "0: Beer, 1: Wine, 2: Schnaps"(0/1/2) "time of intake"(22.10.05 22:48:35)'''
     if(isinstance(self.person, Person)):
       try:       
         self.__AskDrinkData(inp)
@@ -162,7 +130,7 @@ class PromilleClaculator(Cmd):
   def __AskPersonData(self, inp:str) -> None:
     self.person = Person(float(inp.split(" ")[0]), float(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%Y %H:%M:%S'), int(inp.split(" ")[4]))
   def __AskDrinkData(self, inp:str) -> None:
-    self.person.drink(Drink(int(inp.split(" ")[0]), float(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%y %H:%M:%S')))
+    self.person.drink(Drink(int(inp.split(" ")[0]), int(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%y %H:%M:%S')))
     
 
   
