@@ -98,7 +98,6 @@ class PromilleClaculator(Cmd):
     except Exception as e:
       print("The pervious command failed, please look over the command you typed, if it still doesn't work contact the maintainer.")
       print("Define the person in Format: add_person \"body mass in kg\"(75) \"body size in cm\"(175) \"birthday\"(22.10.2005 00:00:00) \"Your sex 0 for male and 1 for women\"(0/1)")
-      print(str(e))
   def do_add_drink(self, inp:str):
     '''Add the drinks you've had in Format: add_drink "volume in milliliter"(500) "0: Beer, 1: Wine, 2: Schnaps"(0/1/2) "time of intake"(22.10.05 22:48:35)'''
     if(isinstance(self.person, Person)):
@@ -106,8 +105,7 @@ class PromilleClaculator(Cmd):
         self.__AskDrinkData(inp)
       except Exception as e:
         print("The pervious command failed, please look over the command you typed, if it still doesn't work contact the maintainer.")
-        print("Add the drinks you've had in Format: add_drink \"volume in milliliter\"(500) \"alcoholic strength\"(1.0) \"time of intake\"(22.10.05 22:48:35)")
-        print(str(e))
+        print("Add the drinks you've had in Format: add_drink \"volume in milliliter\"(500) \"0: Beer, 1: Wine, 2: Schnaps\"(0/1/2) \"time of intake\"(22.10.05 22:48:35)")
     else:
       print('Please first define a person with: add_person')
   
