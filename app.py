@@ -57,12 +57,16 @@ class Person:
   @property
   def wholeBodyWaterIndex(self) -> float:
     if self.__sex == self.WOMAN:
-            return 0.203 - (0.07*self.ageInYears) + (0.1069 * self.__bodySizeInCM) + (0.2466 * self.__bodyMass)
+      return 0.203 - (0.07*self.ageInYears) + (0.1069 * self.__bodySizeInCM) + (0.2466 * self.__bodyMass)
     else:
       return 2.447 - (0.09516*self.ageInYears) + (0.1074 * self.__bodySizeInCM) + (0.3362 * self.__bodyMass)
   
   def drink(self, drink: Drink) -> None:
-    self.__alcoholPromille += ((self.PROPORTION_WATER_IN_BLOOD * drink.alcoholMassInGramms) / (self.DENSITY_BLOOD_GRAMM_PER_CCM * self.wholeBodyWaterIndex)) - (self.DECONTSTRUCTION_PER_HOUR * (drink.hoursSinceIntake - self.DECONSTRUCTION_WAITTIME_HOURS))
+    alcoholPromilleOriginal = (self.PROPORTION_WATER_IN_BLOOD * drink.alcoholMassInGramms) / (self.DENSITY_BLOOD_GRAMM_PER_CCM * self.wholeBodyWaterIndex)
+    
+    deconstruction = (self.DECONTSTRUCTION_PER_HOUR * (drink.hoursSinceIntake - self.DECONSTRUCTION_WAITTIME_HOURS))
+    
+    self.__alcoholPromille += alcoholPromilleOriginal - deconstruction
     
     
 
