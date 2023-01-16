@@ -21,16 +21,14 @@ class Drink:
     self.__volumeInMilliliter:int = volumeInMilliliter
     self.__alcoholicStrength:float = [Drink.BEER_ALCOHOLIC_STRENGTH, Drink.WINE_ALCOHOLIC_STRENGTH, Drink.SCHNAPS_ALCOHOLIC_STRENGTH][alcoholicStrength]
     self.__drankAt:datetime.datetime = drankAt
-    
-  def __get_hoursSinceIntake(self) -> float:
+  
+  @property
+  def hoursSinceIntake(self) -> float:
     return (datetime.datetime.now() - self.__drankAt).total_seconds() // 3600
   
-  hoursSinceIntake = property(__get_hoursSinceIntake)
-    
-  def __get_alcoholMassInGramms(self) -> float:
+  @property
+  def alcoholMassInGramms(self) -> float:
     return self.__volumeInMilliliter * self.__alcoholicStrength * self.DENSITY_ALCOHOL
-  
-  alcoholMassInGramms = property(__get_alcoholMassInGramms)
     
 
 class Person:
@@ -48,23 +46,20 @@ class Person:
     self.__sex:int = sex
     self.__alcoholPromille:float = 0.0
   
-  def __get_ageInYears(self) -> float:
+  @property
+  def ageInYears(self) -> float:
     return relativedelta(datetime.datetime.now(), self.__birthday).years
   
-  ageInYears = property(__get_ageInYears)
-  
-  def __get_alcoholPromille(self) -> float:
+  @property
+  def alcoholPromille(self) -> float:
     return self.__alcoholPromille
   
-  alcoholPromille = property(__get_alcoholPromille)
-  
-  def __get_wholeBodyWaterIndex(self) -> float:
+  @property
+  def wholeBodyWaterIndex(self) -> float:
     if self.__sex == self.WOMAN:
-      return 0.203 - (0.07*self.ageInYears) + (0.1069 * self.__bodySizeInCM) + (0.2466 * self.__bodyMass)
+            return 0.203 - (0.07*self.ageInYears) + (0.1069 * self.__bodySizeInCM) + (0.2466 * self.__bodyMass)
     else:
       return 2.447 - (0.09516*self.ageInYears) + (0.1074 * self.__bodySizeInCM) + (0.3362 * self.__bodyMass)
-    
-  wholeBodyWaterIndex = property(__get_wholeBodyWaterIndex)
   
   def drink(self, drink: Drink) -> None:
     self.__alcoholPromille += ((self.PROPORTION_WATER_IN_BLOOD * drink.alcoholMassInGramms) / (self.DENSITY_BLOOD_GRAMM_PER_CCM * self.wholeBodyWaterIndex)) - (self.DECONTSTRUCTION_PER_HOUR * (drink.hoursSinceIntake - self.DECONSTRUCTION_WAITTIME_HOURS))
