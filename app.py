@@ -84,7 +84,7 @@ class Pun:
 class PromilleClaculator(Cmd):
   prompt = 'pc> '
   intro = "Welcome to the PromilleCalculator! Type ? to list commands"
-  person:None|Person = None
+  person:Person = Person(1, 1, datetime.datetime.strptime("22.10.2005 00:00:00", '%d.%m.%y %H:%M:%S'), 0)
   
   def do_exit(self, inp):
     print("Bye")
@@ -127,11 +127,13 @@ class PromilleClaculator(Cmd):
   do_EOF = do_exit
   help_EOF = help_exit
   
-  def __AskPersonData(self, inp:str) -> None:
+  def __AskPersonData(self, inp:str) -> Person:
     self.person = Person(float(inp.split(" ")[0]), float(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%Y %H:%M:%S'), int(inp.split(" ")[4]))
-  def __AskDrinkData(self, inp:str) -> None:
-    self.person.drink(Drink(int(inp.split(" ")[0]), int(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%y %H:%M:%S')))
-    
+    return self.person
+  def __AskDrinkData(self, inp:str) -> Drink:
+    currentDrink = Drink(int(inp.split(" ")[0]), int(inp.split(" ")[1]), datetime.datetime.strptime(inp.split(" ")[2]+" "+inp.split(" ")[3], '%d.%m.%y %H:%M:%S'))
+    self.person.drink(currentDrink)
+    return currentDrink   
 
   
 if __name__=="__main__":
